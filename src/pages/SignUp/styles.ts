@@ -1,11 +1,11 @@
 import styled from 'styled-components/native'
-// import { Platform } from 'react-native/Libraries/Utilities/Platform'
+import { Platform } from 'react-native/Libraries/Utilities/Platform'
 
 export const Container = styled.View`
     flex:1;
     align-items: center;
     justify-content: center;
-    // padding: 0 30px ${Platform.OS == 'android' ? 150 : 40}px; //valores diferentes para paddding-bottom de acordo com a plataforma usada  */
+    padding: 0 30px;
 `
 
 export const Title = styled.Text`
@@ -45,4 +45,7 @@ export const BackToSignInText=styled.Text`
     font-size: 18px;
     font-family: 'RobotoSlab-Regular';
     margin-left: 16px;
+`
+export const FormView = styled.View`
+    width: 100%;
 `

@@ -25,7 +25,7 @@ export const ForgotPasswordText  = styled.Text`
 `
 
 export const CreateAccountButton = styled.TouchableOpacity`
-    position: absolute;
+     position: absolute;
     left: 0;
     bottom: 0;
     right: 0;
@@ -44,4 +44,8 @@ export const CreateAccountButtonText=styled.Text`
     font-size: 18px;
     font-family: 'RobotoSlab-Regular';
     margin-left: 16px;
+`
+
+export const FormView = styled.View`
+    width: 100%;    
 `
