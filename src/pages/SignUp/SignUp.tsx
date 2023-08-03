@@ -1,5 +1,5 @@
 import React, {useRef, useCallback} from 'react';
-import {Image, View , ScrollView} from 'react-native';
+import {Image, View , ScrollView, TextInput, Alert} from 'react-native';
 import {Container,Title, BackToSignIn, BackToSignInText, FormView} from './styles';
 import logoImg from '../../assets/Logo.png';
 
@@ -9,14 +9,42 @@ import Icon from 'react-native-vector-icons/Feather'
 import { useNavigation } from '@react-navigation/native';
 import {Form } from '@unform/mobile'
 import {FormHandles } from '@unform/core'
+import * as Yup from 'yup'
+import getValidationErrors from '../../utils/getValidationErrors';
 
  const SignUp: React.FC = () => {
     const navigation = useNavigation()
     const formRef = useRef<FormHandles>(null)
 
-    const handleSignUp = useCallback((data: object) => { //para pegar os dados vindos do submit
-      console.log(data)
-    }, [])
+    const emailInputRef = useRef<TextInput>(null)
+    const passwordInputRef = useRef<TextInput>(null) 
+
+    const handleSignUp = useCallback(async(data: object) => {
+      try{
+          formRef.current?.setErrors({})
+          const schema = Yup.object().shape({
+              user: Yup.string().required('Nome obrigatório'),
+              email: Yup.string().required('Email obrigatório').email('Digite um e-mail válido'),
+              password: Yup.string().min(6, 'No mínimo 6 dígitos').required(),
+          })
+          await schema.validate(data, {
+              abortEarly: false //usamos para poder mostrar no console os erros separados de cada um
+          }) //método .validate() vem junto com o Yup quando setamos schema = Yup.object()
+
+      }
+      catch(err)
+      {
+          let errors
+          if (err instanceof Yup.ValidationError){
+
+              console.log(err)
+              errors = getValidationErrors(err)
+              formRef.current?.setErrors(errors)
+            return
+            }
+            Alert.alert('Erro na autenticação', 'Ocorreu um erro ao fazer login, verifique os dados e tente novamente.')
+          }
+  }, [])
 
 
     return (
@@ -32,9 +60,43 @@ import {FormHandles } from '@unform/core'
             
           <FormView>
             <Form ref={formRef} onSubmit={handleSignUp}>
-              <Input name="user" icon="lock" placeholder="Nome"/>
-              <Input name="email" icon="mail" placeholder="E-mail"/>
-              <Input name="password" icon="lock" placeholder="Senha"/>
+              <Input 
+                ref={emailInputRef}
+                name="user" 
+                icon="lock" 
+                placeholder="Nome"
+                autoCorrect={true}
+                autoCapitalize='words'
+                returnKeyType='next'
+                onSubmitEditing={() => {
+                  emailInputRef.current?.focus()
+              }}
+
+              />
+              <Input 
+                ref={emailInputRef}
+                name="email" 
+                icon="mail" 
+                placeholder="E-mail"
+                keyboardType='email-address'
+                autoCapitalize='none'
+                autoCorrect={false}
+                returnKeyType='next'
+                onSubmitEditing={() => {
+                  passwordInputRef.current?.focus()
+              }}
+              />
+              <Input 
+                ref={passwordInputRef}
+                name="password" 
+                icon="lock" 
+                placeholder="Senha"
+                secureTextEntry  
+                textContentType='newPassword' //nao vai tentar pegar alguma senha salva
+                //textContentType="OneTimeCode" --> da opcao para preencher automaticamente algum código de validação vindo de SMS
+                returnKeyType='send'
+                onSubmitEditing={() => {formRef.current?.submitForm()}}
+              />
               <Button onPress={() => {formRef.current?.submitForm()}}>Cadastrar</Button>
             </Form>
           </FormView>
