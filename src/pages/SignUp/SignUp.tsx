@@ -12,6 +12,8 @@ import {FormHandles } from '@unform/core'
 import * as Yup from 'yup'
 import getValidationErrors from '../../utils/getValidationErrors';
 
+import api from '../../services/api'
+
  const SignUp: React.FC = () => {
     const navigation = useNavigation()
     const formRef = useRef<FormHandles>(null)
@@ -23,13 +25,16 @@ import getValidationErrors from '../../utils/getValidationErrors';
       try{
           formRef.current?.setErrors({})
           const schema = Yup.object().shape({
-              user: Yup.string().required('Nome obrigatório'),
+              name: Yup.string().required('Nome obrigatório'),
               email: Yup.string().required('Email obrigatório').email('Digite um e-mail válido'),
               password: Yup.string().min(6, 'No mínimo 6 dígitos').required(),
           })
           await schema.validate(data, {
               abortEarly: false //usamos para poder mostrar no console os erros separados de cada um
           }) //método .validate() vem junto com o Yup quando setamos schema = Yup.object()
+          await api.post('/users', data)
+          navigation.goBack()
+          Alert.alert('Cadastro realizado com sucesso!', 'Você já pode fazer login na aplicação.')
 
       }
       catch(err)
@@ -42,7 +47,8 @@ import getValidationErrors from '../../utils/getValidationErrors';
               formRef.current?.setErrors(errors)
             return
             }
-            Alert.alert('Erro na autenticação', 'Ocorreu um erro ao fazer login, verifique os dados e tente novamente.')
+
+            Alert.alert('Erro na autenticação', `Ocorreu um erro ao fazer login, verifique os dados e tente novamente. ${err}`)
           }
   }, [])
 
@@ -62,7 +68,7 @@ import getValidationErrors from '../../utils/getValidationErrors';
             <Form ref={formRef} onSubmit={handleSignUp}>
               <Input 
                 ref={emailInputRef}
-                name="user" 
+                name="name" 
                 icon="lock" 
                 placeholder="Nome"
                 autoCorrect={true}
